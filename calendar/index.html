@@ -9,11 +9,12 @@
 </head>
 <body>
     <div class="header">
-        <div class="section">Календарь</div>
-        <div class="section">Статистика</div>
-        <div class="section">Напоминания</div>
+        <div class="MyCalendar">MyCalendar</div>
+        <button id="calendarBtn" class="btn btn-active" >Календарь</button>
+        <button id="statsBtn" class="btn" onclick="toggle3()">Статистика</button>
+        <button id="remindersBtn" class="btn" onclick="toggle3()">Напоминания</button>
     </div>
-    <div class="container">
+    <div class="container active">
         <div class="left">
             <div class="calendar">
                 <div class="month">
@@ -36,15 +37,48 @@
                 <div class="goto-today">
                     <div class="goto">
                         <input type="text" placeholder="мм/гггг" class="date-input">
-                        <button class="goto-btn">GO</button>
+                        <button class="goto-btn">Найти</button>
                     </div>
-                    <button class="today-btn">TODAY</button>
+                    <button class="today-btn">Сегодня</button>
                 </div>
 
             </div>
         </div>
+        <div class="right">
+            <div class="today-date">
+                <div class="event-day">WED</div>
+                <div class="event-date">16 novemder 2022</div>
+            </div>
+            <div class="events">
+                <!--js-->
+            </div>
+            <div class="add-event-wrapper">
+                <div class="add-event-header">
+                    <div class="title">Создание коммуникации</div>
+                    <i class="fas fa-times close"></i>
+                </div>
+                <div class="add-event-body">
+                    <div class="add-event-input">
+                        <input type="text" placeholder="Наименование коммуникации" class="event-name">
+                    </div>
+                    <div class="add-event-input">
+                        <input type="text" placeholder="Время ОТ" class="event-time-from">
+                    </div>
+                    <div class="add-event-input">
+                        <input type="text" placeholder="Время ДО" class="event-time-to">
+                    </div>
+                </div>
+                <div class="add-event-footer">
+                    <button class="add-event-btn">Добавить событие</button>
+                </div>
+            </div>
+        </div>
+        <button class="add-event">
+            <i class="fas fa-plus"></i>
+        </button>
     </div>
-
+    <div class="statistic">Статистика</div>
+    <div class="reminders">Напоминания</div>
 
     <script src="script.js"></script>
 </body>
