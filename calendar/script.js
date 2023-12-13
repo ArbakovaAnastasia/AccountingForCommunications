@@ -8,7 +8,8 @@ const calendar = document.querySelector(".calendar"),
     dateInput = document.querySelector(".date-input"),
     eventDay = document.querySelector(".event-day"),
     eventDate = document.querySelector(".event-date"),
-    eventsContainer = document.querySelector(".events");
+    eventsContainer = document.querySelector(".events"),
+    addEventSubmit = document.querySelector(".add-event-btn");
 
 let today = new Date();
 let activeDay;
@@ -30,37 +31,10 @@ const months = [
     "Декабрь",
 ];
 
-const eventsArr = [
-    {
-        day: 12,
-        month: 12,
-        year: 2023,
-        events: [
-            {
-                title: "asd",
-                time: "10:00 AM",
-            },
-            {
-                title: "sad",
-                time: "11:00 AM",
-            },
-        ],
-    },
-    {
-        day: 14,
-        month: 12,
-        year: 2023,
-        events: [
-            {
-                title: "asd",
-                time: "10:00 AM",
-            },
-        ],
-    },
-];
+let eventsArr = [];
+getEvents();
 
 function initCalendar(){                                        //функция добавления дней
-    //get prev month days and current month all days and rem next month days
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const prevLastDay = new Date(year, month, 0);
@@ -70,9 +44,7 @@ function initCalendar(){                                        //функция
     const nextDays = (7 - lastDay.getDay() - 1 + 7) % 7;        //изм
     
     date.innerHTML = months[month] + "    " + year + " год"; //update date top of calendar
-    
     let  days = ""; //adding days on dom
-    
     //prev month days
     for (let x = day; x > 0; x--){
         days += `<div class="day prev-date">${prevLastDay.getDate() - x + 1}</div>`;    //изм
@@ -179,7 +151,7 @@ function gotoDate() {
             return;
         }
     }
-    alert("invalid date")
+    alert("Неверный ввод.")
 };
 
 const addEventBtn = document.querySelector(".add-event"),
@@ -188,6 +160,9 @@ const addEventBtn = document.querySelector(".add-event"),
     addEventTitle = document.querySelector(".event-name"),
     addEventFrom = document.querySelector(".event-time-from"),
     addEventTo = document.querySelector(".event-time-to");
+    addEventPerson = document.querySelector(".event-person"),
+    addEventType = document.querySelector(".event-type"),
+    addEventDescription = document.querySelector(".event-description");
 
 addEventBtn.addEventListener("click", () => {
     addEventContainer.classList.toggle("active");
@@ -201,8 +176,15 @@ document.addEventListener("click", (e) => {
     }
 });
 addEventTitle.addEventListener("input",  (e) => {
-    addEventTitle.value = addEventTitle.value.slice(0, 50); //allow only 50 chars in title
+    addEventTitle.value = addEventTitle.value.slice(0, 50);
 });
+addEventPerson.addEventListener("input", (e) => {
+     addEventPerson.value = addEventPerson.value.slice(0, 50);
+ })
+addEventDescription.addEventListener("input", (e) => {
+     addEventDescription.value = addEventDescription.value.slice(0, 100);
+})
+
 //time format in from and to time
 addEventFrom.addEventListener("input", (e) => {
     addEventFrom.value = addEventFrom.value.replace(/[^0-9:]/g, "");
@@ -260,7 +242,7 @@ function addListner () {
     });
 }
 
-function getActiveDay(date) {  //заголовок этого дня
+function getActiveDay(date) { 
     const day = new Date(year, month, date);
     const dayName = day.toString().split(" ")[0];
     if (dayName === "Mon") {
@@ -295,7 +277,16 @@ function updateEvents(date) { //events на выбранный день
                       <h3 class="event-title">${event.title}</h3>
                     </div>
                     <div class="event-time">
-                      <span class="event-time">${event.time}</span>
+                        <span class="event-time">Время: ${event.time}</span>
+                    </div>
+                    <div class="event-time">
+                        <span class="event-time">Человек: ${event.person}</span>
+                    </div>
+                    <div class="event-time">
+                        <span class="event-time">Тип: ${event.type}</span>
+                    </div>
+                    <div class="event-time">
+                        <span class="event-time">Описание: ${event.description}</span>
                     </div>
                 </div>`;
             });
@@ -307,10 +298,115 @@ function updateEvents(date) { //events на выбранный день
             </div>`;
     }
     eventsContainer.innerHTML = events;
+    saveEvents();
 };
+//добавление event
+addEventSubmit.addEventListener("click", () => {
+    const eventTitle = addEventTitle.value;
+    const eventTimeFrom = addEventFrom.value;
+    const eventTimeTo = addEventTo.value;
+    const eventPerson = addEventPerson.value;
+    const eventType = addEventType.value;
+    const eventDescription = addEventDescription.value;
 
+    if (eventTitle === "" || eventTimeFrom === "" || eventTimeTo === "") {
+        alert("Заполните поле наименования!");
+        return;
+    }
 
+    const timeFromArr = eventTimeFrom.split(":");
+    const timeToArr = eventTimeTo.split(":");
 
+    if (
+        timeFromArr.length !== 2 ||
+        timeToArr.length !== 2 ||
+        timeFromArr[0] > 23 ||
+        timeFromArr[1] > 59 ||
+        timeToArr[0] > 23 ||
+        timeToArr[1] > 59
+    ){
+        alert("Неправильный ввод!")
+    }
+
+    const newEvent = {
+        title: eventTitle,
+        time: eventTimeFrom + " - " + eventTimeTo,
+        person: eventPerson,
+        type: eventType,
+        description: eventDescription,
+    };
+
+    let eventAdded = false;
+    if (eventsArr.length > 0) {
+        eventsArr.forEach((item) => {
+            if (
+                item.day === activeDay &&
+                item.month === month + 1 &&
+                item.year === year
+            ) {
+                item.events.push(newEvent);
+                eventAdded = true;
+            };
+        });
+    };
+    if (!eventAdded) {
+        eventsArr.push({
+            day: activeDay,
+            month: month + 1,
+            year: year,
+            events: [newEvent],
+        });
+    }
+    addEventContainer.classList.remove("active");
+    addEventTitle.value = "";
+    addEventFrom.value = "";
+    addEventTo.value = "";
+    addEventPerson.value = "";
+    addEventType.value = "";
+    addEventDescription.value = "";
+    updateEvents(activeDay);
+    const activeDayElem = document.querySelector(".day.active");
+    if (!activeDayElem.classList.contains("event")){
+        activeDayElem.classList.add("event");
+    }
+});
+
+eventsContainer.addEventListener("click", (e) => {
+    if (e.target.classList.contains("event")){
+        const eventTitle = e.target.children[0].children[1].innerHTML;
+        eventsArr.forEach((event) => {
+            if (
+                event.day === activeDay &&
+                event.month === month + 1 &&
+                event.year === year
+            ){
+                event.events.forEach((item, index) => {
+                    if (item.title === eventTitle) {
+                        event.events.splice(index, 1);
+                    }
+                });
+                if (event.events.length === 0) {
+                    eventsArr.splice(eventsArr.indexOf(event), 1);
+                    const activeDayElem = document.querySelector(".day.active");
+                    if (activeDayElem.classList.contains("event")){
+                        activeDayElem.classList.remove("event");
+                    }
+                }
+            }
+        });
+        updateEvents(activeDay);
+    }
+});
+
+function saveEvents(){
+    localStorage.setItem("events" , JSON.stringify(eventsArr));
+}
+function getEvents(){
+    if (localStorage.getItem("events" === null)){
+        return;
+    }
+    eventsArr.push(... JSON.parse(localStorage.getItem("events")));
+}
 
 
 document.getElementById('calendarBtn').addEventListener('click', function() {
